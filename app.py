@@ -4,34 +4,27 @@ import re
 from gtts import gTTS
 import io
 import os
-from dotenv import load_dotenv
 
-# .env ফাইল থেকে এনভায়রনমেন্ট ভেরিয়েবল লোড করা
-load_dotenv()
-
-# ==========================================
-# ১. Streamlit পেজ সেটআপ
-# ==========================================
+# স্ট্রিমলিট পেজ সেটআপ
 st.set_page_config(page_title="Robot Brain Test", page_icon="🤖", layout="centered")
 st.title("🤖 Robot Brain Test")
 st.write("আপনার ফোনের কীবোর্ডের মাইক ব্যবহার করে কথা বলুন!")
 
-# ==========================================
-# ২. API Key সিকিউরিটি (.env থেকে নেওয়া)
-# ==========================================
-# .env ফাইল থেকে API key পড়া হচ্ছে
-api_key = os.getenv("GEMINI_API_KEY")
+# API Key লোড করার নতুন লজিক
+try:
+    # অনলাইনে স্ট্রিমলিট সিক্রেটস থেকে নেওয়ার চেষ্টা করবে
+    api_key = st.secrets["GEMINI_API_KEY"]
+except:
+    # যদি ল্যাপটপে লোকালি টেস্ট করেন, তখন .env থেকে নেবে
+    api_key = os.getenv("GEMINI_API_KEY")
 
 if api_key:
-    # API কনফিগারেশন
     genai.configure(api_key=api_key)
     
     system_instruction = """
     You are a friendly, intelligent robot companion. 
     ALWAYS start your response with an emotion tag enclosed in square brackets. 
     Valid tags are: [Happy], [Sad], [Thinking], [Excited], [Neutral].
-    Example format: "[Happy] Hello there! How can I help you today?"
-    Keep your answers brief and conversational.
     """
     
     model = genai.GenerativeModel(
